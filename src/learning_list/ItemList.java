@@ -6,7 +6,11 @@
 package learning_list;
 
 import java.util.LinkedList;
+import java.util.Optional;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
@@ -15,88 +19,217 @@ import javafx.scene.text.Text;
  * @author vapo
  */
 public class ItemList extends Pane {
+    private Variable head, end, pom, com;
     private LinkedList<Item> item_list;
-    private NullPointer start_null_pointer, end_null_pointer;
+    private int state = 0;
+    private Comment comment;
     
-    public ItemList(
-            double max_width,
-            double max_height,
-            int number_of_initial_items) {
+    public ItemList() {
         // Call superior constructor
         super();
         
-        // Set immutable origin for list drawing
-        double x0 = 100;
-        double y0 = 100;
-        double space_between_items = 20;
+        // use reset method
+        this.Reset();
+    }
+
+    public void ShowVariables() {
+        // Create Head text without arrow
+        this.head = new Variable(10, 50, "HEAD:");
         
-        // Initialize mutable counters
-        double start_x_position = x0;
-        double start_y_position = y0;
+        // create pom variable
+        this.pom = new Variable(10, 150, "POM:");
         
-        // Initialize LinkedList
-        item_list = new LinkedList<Item>();
+        // create end variable
+        this.end = new Variable(10, 200, "END:");
         
-        // Initialization of sample linked list
-        for (int i = 0; i < number_of_initial_items; i++) {
-            String item_text = "Item_" + i;
-            
-            // Obtain current item dimensions in pixels
-            double item_max_width = item_text.length() * 10 + 40;
-            double item_max_height = 40;
-            
-            // Check if the item will 
-            /*
-            if ((item_max_width + start_x_position) > max_width) {
-                System.out.println("Unable to add more items - max_width has been reached");
-                break;
-            }*/
-            
-            // Create new item
-            Item new_item = new Item(
-                    item_max_width,
-                    item_max_height,
-                    start_x_position,
-                    start_y_position,
-                    item_text);
-            
-            // Bring item back to have visible arrows
-            new_item.toBack();
-            
-            // Add new item to list
-            item_list.addLast(new_item);
-            
-            // Add new item to the pane
-            this.getChildren().add(new_item);
-            
-            if (i != 0) {
-                Arrow arrow = new Arrow(
-                        start_x_position - space_between_items - 10,
-                        start_y_position + item_max_height/2,
-                        start_x_position,
-                        start_y_position + item_max_height/2,
-                        5.0);
-                this.getChildren().add(arrow);
-            }
-                        
-            // Add space pixels to start position
-            start_x_position += space_between_items + item_max_width;   
+        // create comment variable
+        this.com = new Variable(10, 250, "Commentary:");
+        
+        // add variables to list
+        this.getChildren().addAll(head, pom, end, com);
+    }
+    
+    public void AddNewItemToList() {
+        // declare local item variable
+        Item item;
+
+        if (this.item_list.isEmpty()) {
+            // create new item
+            item = new Item(100, 40, 100, 75, "Item", Color.GREENYELLOW);
+        }
+        else {
+            Item last_item = item_list.getLast();
+
+            double space = 10;
+            double x = last_item.getLayoutX() + last_item.getPrefWidth() + space;
+            double y = last_item.getLayoutY();
+            String label = last_item.getItemText();
+
+            item = new Item(100, 40, x, y, label, Color.GREENYELLOW);
         }
 
-        // Add null pointer for first item address field
-        start_null_pointer = new NullPointer(x0 + 15, y0 + 20, 0, 60);
-        this.getChildren().add(start_null_pointer);
-        
-        // Add null pointer for last item address field
-        end_null_pointer = new NullPointer(
-                start_x_position - space_between_items - 15,
-                start_y_position + 20,
-                0,
-                60);
-        this.getChildren().add(end_null_pointer);
+        // add new item to pane
+        this.getChildren().add(item);
+
+        // add item to item list
+        this.item_list.addLast(item);
     }
-     
-    public void AddItem(String key_text) {
-        this.getChildren().remove(this.end_null_pointer);
+    
+    public void RemoveLastItem() {
+        Item last_item = this.item_list.pollLast();
+        
+        if (last_item != null)
+            this.getChildren().remove(last_item);
+        else
+            System.out.println("List is empty.");
+    }
+    
+    public void nextStep() {      
+        if ((this.state == 0) && (this.item_list.size() < 6)) {            
+            // empty list - go to state 1 - create new head arrow
+            if (this.item_list.isEmpty())
+                this.state = 1;
+            else
+                this.state = 2;
+            
+            // Create new Item
+            this.AddNewItemToList();
+            
+            // Create arrow from Pom to Item
+            this.pom.ReplaceArrow(30 + this.item_list.size() * 110, -35);
+
+            // remove head arrow and remove end arrow
+        }
+        else if ((this.state == 1) && (this.item_list.size() == 1)) {
+            // Create a new head arrow
+            this.head.ReplaceArrow(140, 25);
+            this.state = 3;
+        }
+        else if (this.state == 2) {
+            this.item_list.get(this.item_list.size() - 2).addPointer();
+            this.state = 3;
+        }
+        else if (this.state == 3) {
+            // Create the end arrow
+            this.end.ReplaceArrow(50 + this.item_list.size() * 110, -85);
+            this.state = 4;
+        }
+        
+        else if (this.state == 4) {
+            // Remove Pom arrow to the last Item
+            this.pom.RemoveArrow();
+            this.state = 0;
+        }
+        
+        // show commentary
+        this.showComment();
+    }
+
+    public void prevStep() {
+        switch (this.state) {
+            case 0:
+                if (this.item_list.isEmpty()) {
+                    this.end.RemoveArrow();
+                    this.head.RemoveArrow();
+                    this.pom.RemoveArrow();
+                }
+                else {
+                    this.pom.ReplaceArrow(30 + this.item_list.size() * 110, -35);
+                    this.state = 4;
+                }   break;
+
+            case 1:
+                this.RemoveLastItem();
+                this.pom.RemoveArrow();
+                this.state = 0;
+                break;
+            case 2:
+                this.RemoveLastItem();
+                this.pom.RemoveArrow();
+                this.state = 0;
+                break;
+            case 3:
+                if (this.item_list.size() == 1) {
+                    this.head.RemoveArrow();
+                    this.state = 1;
+                }
+                else {
+                    this.item_list.get(this.item_list.size() - 2).removePointer();
+                    this.state = 2;
+                }   break;
+            case 4:
+                if (this.item_list.size() == 1)
+                    this.end.RemoveArrow();
+                else
+                    this.end.ReplaceArrow(50 + (this.item_list.size() - 1) * 110, -85);
+                this.state = 3;
+                break;
+            default:
+                break;
+        }
+        // show commentary
+        this.showComment();
+    }
+    
+    public final void Reset() {
+        // set state to 0
+        this.state = 0;
+        
+        // initialize link list
+        this.item_list = new LinkedList<Item>();
+        
+        // clear all pane children
+        this.getChildren().clear();
+        
+        // show variables
+        this.ShowVariables();
+        
+        // show comment
+        this.showComment();
+    }
+    
+    public void showComment() {
+        String text = "";
+        
+        // firstly remove comment if there is any
+        this.getChildren().remove(this.comment);
+        
+        // add comment according to state
+        switch (this.state) {
+            case 0:
+                if (this.item_list.isEmpty())
+                    text = "Click next step to add new item"
+                            + " at the end of linked list.";
+                else if (this.item_list.size() == 6)
+                    text = "The Reference to the last item assigned to pom"
+                            + " variable has been removed.\n"
+                            + " List is full, to continue click prev step or"
+                            + " reset to start from scratch.";
+                else
+                    text = "The Reference to the last item assigned to pom"
+                            + " variable has been removed.\n"
+                            + " Click next step to add new item"
+                            + " at the end of linked list.";
+                break;
+            case 1:
+                text = "A new item has been created and pom variable is a reference to its instance.";
+                break;
+            case 2:
+                text = "A new item has been created and pom variable is a reference to its instance.";
+                break;
+            case 3:
+                if (this.item_list.size() == 1)
+                    text = "A reference to the first item of the linked list has been assigned to head variable.";
+                else
+                    text = "Reference to the last item has been assigned to the previous item.";
+                break;
+            case 4:
+                text = "A reference to the item has been assigned to the end variable.";
+            default:
+                break;
+        }
+                      
+        this.comment = new Comment(10, 275, text);
+        this.getChildren().add(this.comment); 
     }
 }

@@ -5,9 +5,8 @@
  */
 package learning_list;
 
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import static javafx.scene.paint.Color.GREEN;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
@@ -16,31 +15,36 @@ import javafx.scene.text.Text;
  * @author vapo
  */
 public class ItemContent extends StackPane {
-    private final Text key_text;
-    private final Rectangle bg_rec;
+    private final Text content;
+    private final Rectangle background;
     
     public ItemContent(
-            double positionX,
-            double positionY,
+            double x,
+            double y,
             double width,
             double height,
-            String key) {
+            String key,
+            Color color
+    ) {
         
         // Set begining of box with rectangle and text inside
-        this.setLayoutX(positionX);
-        this.setLayoutY(positionY);
+        this.setLayoutX(x);
+        this.setLayoutY(y);
         this.setHeight(height);
         this.setWidth(width);
         
-        bg_rec = new Rectangle(positionX, positionY, width, height);
-        bg_rec.setFill(GREEN);
+        // add background rectangle
+        this.background = new Rectangle(x, y, width, height);
+        this.background.setFill(color);
         
-        key_text = new Text(key);
-        //key_text.autosize();
-        
-        // debug
-        // System.out.println("Item-content: width:" + width + " - height:" + height);
-        
-        this.getChildren().addAll(bg_rec, key_text);
+        // create label
+        this.content = new Text(key);
+               
+        // add background and content to stack pane
+        this.getChildren().addAll(this.background, this.content);
+    }
+    
+    public String getKeyText() {
+        return this.content.getText();
     }
 }

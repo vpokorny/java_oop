@@ -6,6 +6,7 @@
 <AnchorPane id="AnchorPane" fx:id="main_anchor_pane" prefHeight="534.0" prefWidth="786.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="learning_list.FXMLDocumentController">
     <children>
         <Button fx:id="next_step" layoutX="673.0" layoutY="494.0" onAction="#handleNextStepButtonAction" text="Next step -&gt;" />
-      <Button fx:id="prev_step" layoutX="14.0" layoutY="494.0" text="&lt;- Prev step" />
+      <Button fx:id="prev_step" layoutX="14.0" layoutY="494.0" onAction="#handlePrevStepButtonAction" text="&lt;- Prev step" />
+      <Button fx:id="ResetButton" layoutX="366.0" layoutY="494.0" mnemonicParsing="false" onAction="#handleResetButtonAction" text="Reset" />
     </children>
 </AnchorPane>

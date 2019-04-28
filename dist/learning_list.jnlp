@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="learning_list.jar" size="8493" download="eager" />
+    <jar href="learning_list.jar" size="13018" download="eager" />
   </resources>
   <jfx:javafx-desc  width="800" height="600" main-class="learning_list.Learning_list"  name="learning_list" />
   <update check="always"/>

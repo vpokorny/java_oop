@@ -18,9 +18,9 @@ import javafx.scene.paint.Color;
  * @author vapo
  */
 public class Item extends Pane {
-    private ItemAddress prev;
-    private ItemAddress next;
-    private ItemContent key;
+    private final ItemAddress next;
+    private final ItemContent key;
+    private Arrow pointer;
     
     
     public Item(
@@ -28,8 +28,9 @@ public class Item extends Pane {
             double max_height,
             double positionX,
             double positionY,
-            String key_text)
-    {
+            String key_text,
+            Color color
+    ){
         super();
         
         setLayoutX(positionX);
@@ -41,32 +42,65 @@ public class Item extends Pane {
         this.setMinWidth(max_width);
         this.setMaxWidth(max_width);
         
-        // Set border
-        this.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        // Set prefered height
         setPrefHeight(max_height);
         
-        prev = new ItemAddress(
-                5, // start X position in Item pane
-                5, // start Y position in Item pane
-                15, // width of previous address rectangle
-                max_height - 10); // height of address rectangle
-        
-        key = new ItemContent(
-                20, // start X + 20 pixels space between
+        // Set border
+        this.setBorder(
+                new Border(
+                        new BorderStroke(
+                                Color.BLACK,
+                                BorderStrokeStyle.DASHED,
+                                CornerRadii.EMPTY,
+                                BorderWidths.DEFAULT
+                        )
+                )
+        );
+           
+        // Item content field
+        this.key = new ItemContent(
+                5, // start X + 5 - padding
                 5, // start Y
-                max_width - 40, // width of middle item rectangle
-                max_height - 10, // height
-                key_text); 
+                (max_width - 10) * 0.8, // 80 % of width is item field - padding on both sides = 10 px
+                max_height - 10, // full height without padding on both sides
+                key_text,
+                color
+        ); 
         
-        next = new ItemAddress(
-                max_width - 20, // start X (end - 20)-middle width is dynamic
+        // Item address field
+        this.next = new ItemAddress(
+                5 + key.getWidth(), // start right after item field
                 5, // start Y
-                15, // width of next address rectangle
-                max_height - 10); // height of next address rectangle
+                (max_width - 10) * 0.2, // 20 % of width is address field - padding on both sides = 10 px
+                max_height - 10); // full height without padding on both sides
           
         // Add components to Item pane
-        this.getChildren().addAll(key, prev, next);
+        this.getChildren().addAll(this.key, this.next);
     }
     
+    public void addPointer() {
+        // first remove null pointer from item
+        this.next.removeNullPointer();
+        
+        // add arrow as a pointer to next item
+        double[] x = {this.getWidth() - 5 - this.next.getWidth()/2, this.getWidth() + 10};
+        double[] y = {this.getHeight()/2, this.getHeight()/2};
+        this.pointer = new Arrow(x, y);
+        
+        // add arrow to pane
+        this.getChildren().add(this.pointer);
+    }
+    
+    public void removePointer() {
+        // remove pointer from pane
+        this.getChildren().remove(this.pointer);
+        
+        // add null pointer
+        this.next.addNullPointer();
+    }
+    
+    public String getItemText() {
+        return this.key.getKeyText();
+    }
     
 }

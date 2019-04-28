@@ -23,7 +23,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private AnchorPane main_anchor_pane;
     
     // Declare list of items to be able to use it in methods
-    private ItemList il = new ItemList(500, 500, 3);
+    private ItemList il = new ItemList();
 
     
     @Override
@@ -34,7 +34,17 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private void handleNextStepButtonAction(ActionEvent event) {
-        il.AddItem("ahoj");
+        il.nextStep();
+    }
+    
+    @FXML
+    private void handlePrevStepButtonAction(ActionEvent event) {
+        il.prevStep();
+    }
+    
+    @FXML
+    private void handleResetButtonAction(ActionEvent event) {
+        il.Reset();
     }
 }
 
